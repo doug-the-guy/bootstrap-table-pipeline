@@ -198,6 +198,7 @@
                     // if cacheWindows is empty, this is the initial request
                     if(!this.cacheWindows.length){
                         useAjax = true;
+                        params.drawOffset = params.offset;
                     // cache exists: determine if the page request is entirely within the current cached window
                     } else {
                         let w = this.cacheWindows[this.currWindow];
@@ -207,6 +208,8 @@
                         if(params.offset < w.lower || params.offset > w.upper){
                             useAjax = true;
                             this.setCurrWindow(params.offset);
+                            // store the relative offset for drawing the page data afterwards
+                            params.drawOffset = params.offset;
                             // now set params.offset to the lower bound of the new cache window
                             // the server will return that whole cache window
                             params.offset = this.cacheWindows[this.currWindow].lower;
@@ -284,9 +287,9 @@
                     // so cache windows need to be rebuilt. Otherwise it
                     // will come out the same
                     this.setCacheWindows()
-                    this.setCurrWindow(params.offset)
+                    this.setCurrWindow(params.drawOffset)
                      // just load data for the page
-                    res = this.drawFromCache(params.offset, params.drawLimit)
+                    res = this.drawFromCache(params.drawOffset, params.drawLimit)
                     this.trigger('cached-data-reset', res);
                 }
                 this.load(res)
