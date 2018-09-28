@@ -33,15 +33,15 @@
  * request will be issued for the new cache window.
  * 
  * The current cached data is only invalidated on these events:
- *  * sorting
- *  * searching
- *  * page size change
- *  * page change moves into a new cache window
+ *  - sorting
+ *  - searching
+ *  - page size change
+ *  - page change moves into a new cache window
  *
  * There are two new events:
  *  - cached-data-hit.bs.table: issued when cached data is used on a page change
  *  - cached-data-reset.bs.table: issued when the cached data is invalidated and a
- *      a new server side request is issued
+ *      new server side request is issued
  *
  **/
 
