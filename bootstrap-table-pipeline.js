@@ -26,17 +26,19 @@
  *  [{'lower': 0, 'upper': 499}, {'lower': 500, 'upper': 999}, {'lower': 1000, 'upper': 1499}]
  *
  * Using the limit (i.e. the pipelineSize) and offset parameters, the server side request
- * MUST return only the data in the requested cache window AND the total number of rows.
+ * **MUST** return only the data in the requested cache window **AND** the total number of rows.
+ * To wit, the server side code must use the offset and limit parameters to prepare the response
+ * data.
  *
  * On a page change, the new offset is checked if it is within the current cache window. If so,
  * the requested page data is returned from the cached data set. Otherwise, a new server side
  * request will be issued for the new cache window.
  * 
  * The current cached data is only invalidated on these events:
- *  - sorting
- *  - searching
- *  - page size change
- *  - page change moves into a new cache window
+ *  * sorting
+ *  * searching
+ *  * page size change
+ *  * page change moves into a new cache window
  *
  * There are two new events:
  *  - cached-data-hit.bs.table: issued when cached data is used on a page change

@@ -23,7 +23,9 @@ returned by the server side query. For example, with pipeline size 500 and total
 [{'lower': 0, 'upper': 499}, {'lower': 500, 'upper': 999}, {'lower': 1000, 'upper': 1499}]
 
 Using the limit (i.e. the pipelineSize) and offset parameters, the server side request
-MUST return only the data in the requested cache window AND the total number of rows.
+**MUST** return only the data in the requested cache window **AND** the total number of rows.
+To wit, the server side code must use the offset and limit parameters to prepare the response
+data.
 
 On a page change, the new offset is checked if it is within the current cache window. If so,
 the requested page data is returned from the cached data set. Otherwise, a new server side
@@ -46,6 +48,7 @@ There are two new events:
 ## Usage
 
 ```
+# assumed import of bootstrap and bootstrap-table assets
 <script src="/path/to/bootstrap-table-pipeline.js"></script>
 ...
 <table id="pipeline_table" 
@@ -76,7 +79,7 @@ There are two new events:
 
 * type: Integer
 * description: Size of each cache window. Must be greater than 0
-* default `1000`    
+* default: `1000`    
 
 ## Events
 
