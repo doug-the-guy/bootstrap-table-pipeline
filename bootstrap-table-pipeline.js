@@ -202,10 +202,13 @@
                     // cache exists: determine if the page request is entirely within the current cached window
                     } else {
                         let w = this.cacheWindows[this.currWindow];
-                        // since each cache window is aligned with the current page size
-                        // checking if params.offset is beyond upper is sufficient
-                        // need to requery for preceding or succeeding cache window
-                        if(params.offset < w.lower || params.offset > w.upper){
+                        // case 1: reset cache but stay within current window (e.g. column sort)
+                        // case 2: move outside of the current window (e.g. search or paging)
+                        //  since each cache window is aligned with the current page size
+                        //  checking if params.offset is outside the current window is sufficient.
+                        //  need to requery for preceding or succeeding cache window
+                        //  also handle case 
+                        if(this.resetCache || (params.offset < w.lower || params.offset > w.upper)){
                             useAjax = true;
                             this.setCurrWindow(params.offset);
                             // store the relative offset for drawing the page data afterwards
