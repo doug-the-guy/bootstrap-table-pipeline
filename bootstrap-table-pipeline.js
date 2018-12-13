@@ -89,7 +89,7 @@
         this.resetCache = true;
     };
 
-    BootstrapTable.prototype.onSearch = function({currentTarget, firedByInitSearchText}) {
+    BootstrapTable.prototype.onSearch = function(event) {
         /* force a cache reset on search */
         if (this.options.usePipeline) {
             this.resetCache = true;
@@ -97,7 +97,7 @@
         _onSearch.apply(this, Array.prototype.slice.apply(arguments));
     };
 
-    BootstrapTable.prototype.onSort = function({type, currentTarget}) {
+    BootstrapTable.prototype.onSort = function(event) {
         /* force a cache reset on sort */
         if (this.options.usePipeline) {
             this.resetCache = true;
@@ -107,8 +107,8 @@
 
     BootstrapTable.prototype.onPageListChange = function (event) {
         /* rebuild cache window on page size change */
-        let $this = $(event.currentTarget);
-        let newPageSize = parseInt($this.text());
+        var target = $(event.currentTarget);
+        var newPageSize = parseInt(target.text());
         this.options.pipelineSize = this.calculatePipelineSize(this.options.pipelineSize, newPageSize);
         this.resetCache = true;
         _onPageListChange.apply(this, Array.prototype.slice.apply(arguments));
@@ -125,9 +125,9 @@
         /* set cache windows based on the total number of rows returned by server side
          * request and the pipelineSize */
         this.cacheWindows = [];
-        let numWindows = this.options.totalRows / this.options.pipelineSize;
-        for(let i = 0; i <= numWindows; i++){
-            let b = i * this.options.pipelineSize;
+        var numWindows = this.options.totalRows / this.options.pipelineSize;
+        for(var i = 0; i <= numWindows; i++){
+            var b = i * this.options.pipelineSize;
             this.cacheWindows[i] = {'lower': b, 'upper': b + this.options.pipelineSize - 1};
         }
     };
@@ -135,7 +135,7 @@
     BootstrapTable.prototype.setCurrWindow = function(offset) {
         /* set the current cache window index, based on where the current offset falls */
         this.currWindow = 0;
-        for(let i = 0; i < this.cacheWindows.length; i++){
+        for(var i = 0; i < this.cacheWindows.length; i++){
             if(this.cacheWindows[i].lower <= offset && offset <= this.cacheWindows[i].upper){
                 this.currWindow = i;
                 break;
@@ -145,11 +145,11 @@
 
     BootstrapTable.prototype.drawFromCache = function(offset, limit) {
         /* draw rows from the cache using offset and limit */
-        let res = $.extend(true, {}, this.cacheRequestJSON)
-        let drawStart = offset - this.cacheWindows[this.currWindow].lower;
-        let drawEnd = drawStart + limit
-        res.rows = res.rows.slice(drawStart, drawEnd)
-        return res
+        var res = $.extend(true, {}, this.cacheRequestJSON);
+        var drawStart = offset - this.cacheWindows[this.currWindow].lower;
+        var drawEnd = drawStart + limit;
+        res.rows = res.rows.slice(drawStart, drawEnd);
+        return res;
     };
 
     BootstrapTable.prototype.initServer = function(silent, query, url){
@@ -159,19 +159,19 @@
          * initial version of this extension will entirely override base initServer 
          **/
 
-        let data = {}
-        const index = this.header.fields.indexOf(this.options.sortName)
+        var data = {};
+        var index = this.header.fields.indexOf(this.options.sortName);
 
-        let params = {
+        var params = {
             searchText: this.searchText,
             sortName: this.options.sortName,
             sortOrder: this.options.sortOrder
-        }
+        };
 
-        let request
+        var request = null;
 
         if (this.header.sortNames[index]) {
-            params.sortName = this.header.sortNames[index]
+            params.sortName = this.header.sortNames[index];
         }
 
         if (this.options.pagination && this.options.sidePagination === 'server') {
@@ -181,10 +181,10 @@
         }
 
         if (!(url || this.options.url) && !this.options.ajax) {
-            return
+            return;
         }
 
-        let useAjax = true;
+        var useAjax = true;
         if (this.options.queryParamsType === 'limit') {
             params = {
                 searchText: params.searchText,
@@ -201,7 +201,7 @@
                         params.drawOffset = params.offset;
                     // cache exists: determine if the page request is entirely within the current cached window
                     } else {
-                        let w = this.cacheWindows[this.currWindow];
+                        var w = this.cacheWindows[this.currWindow];
                         // case 1: reset cache but stay within current window (e.g. column sort)
                         // case 2: move outside of the current window (e.g. search or paging)
                         //  since each cache window is aligned with the current page size
@@ -244,29 +244,29 @@
 
         // cached results can be used
         if(!useAjax) {
-            let res = this.drawFromCache(params.offset, params.limit)
-            this.load(res)
-            this.trigger('load-success', res)
-            this.trigger('cached-data-hit', res)
-            return
+            var res = this.drawFromCache(params.offset, params.limit);
+            this.load(res);
+            this.trigger('load-success', res);
+            this.trigger('cached-data-hit', res);
+            return;
         }
         // cached results can't be used
         // continue base initServer code    
         if (!($.isEmptyObject(this.filterColumnsPartial))) {
-            params.filter = JSON.stringify(this.filterColumnsPartial, null)
+            params.filter = JSON.stringify(this.filterColumnsPartial, null);
         }
 
-        data = Utils.calculateObjectValue(this.options, this.options.queryParams, [params], data)
+        data = Utils.calculateObjectValue(this.options, this.options.queryParams, [params], data);
 
-        $.extend(data, query || {})
+        $.extend(data, query || {});
 
         // false to stop request
         if (data === false) {
-            return
+            return;
         }
 
         if (!silent) {
-            this.$tableLoading.show()
+            this.$tableLoading.show();
         }
 
         request = $.extend({}, Utils.calculateObjectValue(null, this.options.ajaxOptions), {
@@ -277,8 +277,8 @@
             cache: this.options.cache,
             contentType: this.options.contentType,
             dataType: this.options.dataType,
-            success: res => {
-                res = Utils.calculateObjectValue(this.options, this.options.responseHandler, [res], res)
+            success: function(res){
+                res = Utils.calculateObjectValue(this.options, this.options.responseHandler, [res], res);
                 // cache results if using pipelining
                 if(this.options.usePipeline){
                     // store entire request in cache
@@ -286,43 +286,43 @@
                     // this gets set in load() also but needs to be set before
                     // setting cacheWindows
                     this.options.totalRows = res[this.options.totalField];
-                    // if this is a search, less results will be returned
+                    // if this is a search, potentially less results will be returned
                     // so cache windows need to be rebuilt. Otherwise it
                     // will come out the same
-                    this.setCacheWindows()
-                    this.setCurrWindow(params.drawOffset)
+                    this.setCacheWindows();
+                    this.setCurrWindow(params.drawOffset);
                      // just load data for the page
-                    res = this.drawFromCache(params.drawOffset, params.drawLimit)
+                    res = this.drawFromCache(params.drawOffset, params.drawLimit);
                     this.trigger('cached-data-reset', res);
                 }
-                this.load(res)
-                this.trigger('load-success', res)
-                if (!silent) this.$tableLoading.hide()
+                this.load(res);
+                this.trigger('load-success', res);
+                if (!silent) this.$tableLoading.hide();
             },
-            error: res => {
-                let data = []
+            error: function(res){
+                var data = [];
                 if (this.options.sidePagination === 'server') {
-                    data = {}
-                    data[this.options.totalField] = 0
-                    data[this.options.dataField] = []
+                    data = {};
+                    data[this.options.totalField] = 0;
+                    data[this.options.dataField] = [];
                 }
-                this.load(data)
-                this.trigger('load-error', res.status, res)
-                if (!silent) this.$tableLoading.hide()
+                this.load(data);
+                this.trigger('load-error', res.status, res);
+                if (!silent) this.$tableLoading.hide();
             }
-        })
+        });
 
         if (this.options.ajax) {
-            Utils.calculateObjectValue(this, this.options.ajax, [request], null)
+            Utils.calculateObjectValue(this, this.options.ajax, [request], null);
         } else {
             if (this._xhr && this._xhr.readyState !== 4) {
-                this._xhr.abort()
+                this._xhr.abort();
             }
-            this._xhr = $.ajax(request)
+            this._xhr = $.ajax(request);
         }
     }
 
-    $.fn.bootstrapTable.methods.push()
+    $.fn.bootstrapTable.methods.push();
 
 
 
