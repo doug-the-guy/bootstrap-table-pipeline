@@ -268,6 +268,7 @@
         if (!silent) {
             this.$tableLoading.show();
         }
+        var self = this;
 
         request = $.extend({}, Utils.calculateObjectValue(null, this.options.ajaxOptions), {
             type: this.options.method,
@@ -278,37 +279,37 @@
             contentType: this.options.contentType,
             dataType: this.options.dataType,
             success: function(res){
-                res = Utils.calculateObjectValue(this.options, this.options.responseHandler, [res], res);
+                res = Utils.calculateObjectValue(self.options, self.options.responseHandler, [res], res);
                 // cache results if using pipelining
-                if(this.options.usePipeline){
+                if(self.options.usePipeline){
                     // store entire request in cache
-                    this.cacheRequestJSON = $.extend(true, {}, res);
+                    self.cacheRequestJSON = $.extend(true, {}, res);
                     // this gets set in load() also but needs to be set before
                     // setting cacheWindows
-                    this.options.totalRows = res[this.options.totalField];
+                    self.options.totalRows = res[self.options.totalField];
                     // if this is a search, potentially less results will be returned
                     // so cache windows need to be rebuilt. Otherwise it
                     // will come out the same
-                    this.setCacheWindows();
-                    this.setCurrWindow(params.drawOffset);
+                    self.setCacheWindows();
+                    self.setCurrWindow(params.drawOffset);
                      // just load data for the page
-                    res = this.drawFromCache(params.drawOffset, params.drawLimit);
-                    this.trigger('cached-data-reset', res);
+                    res = self.drawFromCache(params.drawOffset, params.drawLimit);
+                    self.trigger('cached-data-reset', res);
                 }
-                this.load(res);
-                this.trigger('load-success', res);
-                if (!silent) this.$tableLoading.hide();
+                self.load(res);
+                self.trigger('load-success', res);
+                if (!silent) self.$tableLoading.hide();
             },
             error: function(res){
                 var data = [];
-                if (this.options.sidePagination === 'server') {
+                if (self.options.sidePagination === 'server') {
                     data = {};
-                    data[this.options.totalField] = 0;
-                    data[this.options.dataField] = [];
+                    data[self.options.totalField] = 0;
+                    data[self.options.dataField] = [];
                 }
-                this.load(data);
-                this.trigger('load-error', res.status, res);
-                if (!silent) this.$tableLoading.hide();
+                self.load(data);
+                self.trigger('load-error', res.status, res);
+                if (!silent) self.$tableLoading.hide();
             }
         });
 
